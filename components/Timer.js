@@ -8,36 +8,38 @@ import {
 
 const Timer = ({ recipe, onEdit, onDelete, onBack }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [remainingTime, setRemainingTime] = useState(recipe.steps[currentStep].duration);
+  const [remainingTime, setRemainingTime] = useState(recipe.steps[currentStep] ? recipe.steps[currentStep].duration : 0);
   const [timerActive, setTimerActive] = useState(false);
   const [completedSteps, setCompletedSteps] = useState([]);
 
   useEffect(() => {
     let timer;
-    if (timerActive && remainingTime > 0) {
+    if (timerActive && remainingTime > 0 && currentStep < recipe.steps.length) {
       timer = setTimeout(() => {
         setRemainingTime(remainingTime - 1);
       }, 1000);
-    } else if (timerActive && remainingTime === 0) {
+    } else if (timerActive && remainingTime === 0 && currentStep < recipe.steps.length) {
       setTimerActive(false);
       setCompletedSteps([...completedSteps, currentStep]);
-
+  
       if (recipe.steps[currentStep].autoNext && currentStep < recipe.steps.length - 1) {
         setCurrentStep(currentStep + 1);
         setRemainingTime(recipe.steps[currentStep + 1].duration);
+        setTimerActive(true);
       }
     }
-
+  
     return () => clearTimeout(timer);
-  }, [timerActive, remainingTime]);
-
+  }, [timerActive, remainingTime, currentStep, recipe.steps]);
+  
+  
   const toggleTimer = () => {
     setTimerActive(!timerActive);
   };
 
   const resetTimer = () => {
     setTimerActive(false);
-    setRemainingTime(recipe.steps[currentStep].duration);
+    setRemainingTime(recipe.steps[currentStep] ? recipe.steps[currentStep].duration : 0);
   };
 
   return (
@@ -53,7 +55,7 @@ const Timer = ({ recipe, onEdit, onDelete, onBack }) => {
                 completedSteps.includes(index) && styles.completedStep,
               ]}
             >
-              {index + 1}. {step.task} ({step.duration}秒)
+              {index + 1}. {step.description} ({step.duration}秒)
             </Text>
           </View>
         ))}
@@ -86,6 +88,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
+    marginTop: 36,
   },
   recipeTitle: {
     fontSize: 24,
