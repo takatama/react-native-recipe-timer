@@ -6,105 +6,93 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
+  Switch,
 } from 'react-native';
 
 const RecipeForm = ({ onSave, onCancel, initialRecipe }) => {
-  const [recipeName, setRecipeName] = useState(initialRecipe?.name || '');
-  const [steps, setSteps] = useState(initialRecipe?.steps || []);
+  const [recipeName, setRecipeName] = useState(initialRecipe ? initialRecipe.name : '');
+  const [steps, setSteps] = useState(initialRecipe ? initialRecipe.steps : [{ description: '', duration: 0, autoNext: false, alarmBeforeEnd: false }]);
 
-  const addStep = () => {
-    setSteps([...steps, { description: '', duration: 0, autoNext: false, playSound: false }]);
-  };
-
-  const updateStep = (index, updatedStep) => {
-    setSteps(steps.map((step, i) => (i === index ? updatedStep : step)));
-  };
-
-  const removeStep = (index) => {
-    setSteps(steps.filter((_, i) => i !== index));
-  };
-
-  const handleSave = () => {
+  const saveRecipe = () => {
     onSave({
       name: recipeName,
-      steps: steps,
+      steps: steps.filter(step => step.description.trim() !== ''),
     });
   };
 
+  const updateStep = (index, key, value) => {
+    const newSteps = [...steps];
+    newSteps[index][key] = value;
+    setSteps(newSteps);
+  };
+
+  const removeStep = index => {
+    const newSteps = [...steps];
+    newSteps.splice(index, 1);
+    setSteps(newSteps);
+  };
+
+  const addStep = () => {
+    setSteps([...steps, { description: '', duration: 0, autoNext: false, alarmBeforeEnd: false }]);
+  };
+
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.formGroup}>
+    <ScrollView>
+      <View style={styles.container}>
         <Text style={styles.label}>レシピ名</Text>
         <TextInput
-          style={styles.input}
+          style={styles.textInput}
+          placeholder="レシピ名を入力"
           value={recipeName}
           onChangeText={setRecipeName}
-          placeholder="レシピ名を入力"
         />
-      </View>
-
-      {steps.map((step, index) => (
-        <View key={index} style={styles.formGroup}>
-          <Text style={styles.label}>ステップ {index + 1}</Text>
-          <TextInput
-            style={styles.input}
-            value={step.description}
-            onChangeText={(text) =>
-              updateStep(index, { ...step, description: text })
-            }
-            placeholder="やること"
-          />
-          <TextInput
-            style={styles.input}
-            value={String(step.duration)}
-            onChangeText={(text) =>
-              updateStep(index, { ...step, duration: parseInt(text) || 0 })
-            }
-            keyboardType="number-pad"
-            placeholder="必要な時間（秒）"
-          />
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>自動で次へ？</Text>
-            <TouchableOpacity
-              style={styles.checkbox}
-              onPress={() =>
-                updateStep(index, { ...step, autoNext: !step.autoNext })
-              }
-            >
-              <Text style={styles.checkboxText}>{step.autoNext ? '✓' : ''}</Text>
+        {steps.map((step, index) => (
+          <View key={index} style={styles.stepContainer}>
+            <Text style={styles.label}>{`ステップ ${index + 1}`}</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder="やること"
+              value={step.description}
+              onChangeText={value => updateStep(index, 'description', value)}
+            />
+            <View style={styles.durationContainer}>
+              <Text style={styles.label}>必要な時間（秒）</Text>
+              <TextInput
+                style={styles.textInput}
+                keyboardType="number-pad"
+                value={step.duration.toString()}
+                onChangeText={value => updateStep(index, 'duration', parseInt(value, 10) || 0)}
+                placeholder="0"
+              />
+            </View>
+            <View style={styles.switchContainer}>
+              <Switch
+                value={step.autoNext}
+                onValueChange={value => updateStep(index, 'autoNext', value)}
+              />
+              <Text style={styles.switchLabel}>自動で次へ？</Text>
+            </View>
+            <View style={styles.switchContainer}>
+              <Switch
+                value={step.alarmBeforeEnd}
+                onValueChange={value => updateStep(index, 'alarmBeforeEnd', value)}
+                disabled={step.duration < 3}
+              />
+              <Text style={styles.switchLabel}>最後に時報？</Text>
+            </View>
+            <TouchableOpacity onPress={() => removeStep(index)}>
+              <Text style={styles.removeStepButton}>このステップを削除</Text>
             </TouchableOpacity>
           </View>
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>最後に時報？</Text>
-            <TouchableOpacity
-              style={styles.checkbox}
-              onPress={() =>
-                updateStep(index, { ...step, playSound: !step.playSound })
-              }
-            >
-              <Text style={styles.checkboxText}>{step.playSound ? '✓' : ''}</Text>
-            </TouchableOpacity>
-          </View>
-          <TouchableOpacity
-            style={styles.removeStepButton}
-            onPress={() => removeStep(index)}
-          >
-            <Text style={styles.removeStepButtonText}>このステップを削除</Text>
-          </TouchableOpacity>
-        </View>
-      ))}
-
-      <TouchableOpacity style={styles.addButton} onPress={addStep}>
-        <Text style={styles.addButtonText}>新しいステップを追加</Text>
-      </TouchableOpacity>
-
-      <View style={styles.buttons}>
-        <TouchableOpacity style={
-          styles.button} onPress={handleSave}>
-          <Text style={styles.buttonText}>保存</Text>
+        ))}
+        <TouchableOpacity onPress={addStep} style={styles.addButton}>
+          <Text style={styles.addButtonText}>新しいステップを追加</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={onCancel}>
-          <Text style={styles.buttonText}>キャンセル</Text>
+        <TouchableOpacity onPress={saveRecipe} style={styles.saveButton}>
+          <Text style={styles.saveButtonText}>保存</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onCancel} style={styles.cancelButton}>
+          <Text style={styles.cancelButtonText}>キャンセル</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -113,72 +101,76 @@ const RecipeForm = ({ onSave, onCancel, initialRecipe }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 10,
-  },
-  formGroup: {
-    marginBottom: 10,
+    padding: 16,
+    marginTop: 36,
   },
   label: {
-    fontWeight: 'bold',
     fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 4,
   },
-  input: {
-    borderWidth: 1,
+  textInput: {
     borderColor: '#ccc',
+    borderWidth: 1,
     borderRadius: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    marginTop: 5,
+    fontSize: 16,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginBottom: 16,
   },
-  checkbox: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 4,
-    width: 24,
-    height: 24,
-    justifyContent: 'center',
+  stepContainer: {
+    marginBottom: 16,
+  },
+  durationContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 5,
+    marginBottom: 8,
   },
-  checkboxText: {
-    fontSize: 18,
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  switchLabel: {
+    marginLeft: 8,
+    fontSize: 16,
   },
   removeStepButton: {
-    backgroundColor: 'red',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 4,
-    marginTop: 5,
-  },
-  removeStepButtonText: {
-    color: 'white',
+    color: 'red',
     fontSize: 16,
+    textDecorationLine: 'underline',
   },
   addButton: {
-    backgroundColor: 'dodgerblue',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    backgroundColor: '#4caf50',
     borderRadius: 4,
-    marginBottom: 10,
+    padding: 8,
+    marginBottom: 16,
   },
   addButtonText: {
     color: 'white',
     fontSize: 16,
+    textAlign: 'center',
   },
-  buttons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  button: {
-    backgroundColor: 'dodgerblue',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+  saveButton: {
+    backgroundColor: '#2196f3',
     borderRadius: 4,
+    padding: 8,
+    marginBottom: 8,
   },
-  buttonText: {
+  saveButtonText: {
     color: 'white',
     fontSize: 16,
+    textAlign: 'center',
+  },
+  cancelButton: {
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 4,
+    padding: 8,
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    textAlign: 'center',
   },
 });
 
