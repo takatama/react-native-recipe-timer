@@ -1,77 +1,83 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+} from 'react-native';
 
-const Timer = ({ recipe, goBack, editRecipe, removeRecipe, cancelForm}) => {
+const Timer = ({ recipe, onEdit, onDelete, onBack }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [remainingTime, setRemainingTime] = useState(recipe.steps[currentStep].duration);
   const [timerActive, setTimerActive] = useState(false);
-  const [finishedSteps, setFinishedSteps] = useState([]);
-  const [showForm, setShowForm] = useState(false);
+  const [completedSteps, setCompletedSteps] = useState([]);
 
   useEffect(() => {
-    let interval;
+    let timer;
     if (timerActive && remainingTime > 0) {
-      interval = setInterval(() => {
+      timer = setTimeout(() => {
         setRemainingTime(remainingTime - 1);
       }, 1000);
     } else if (timerActive && remainingTime === 0) {
       setTimerActive(false);
-      setFinishedSteps([...finishedSteps, currentStep]);
-      if (currentStep < recipe.steps.length - 1) {
+      setCompletedSteps([...completedSteps, currentStep]);
+
+      if (recipe.steps[currentStep].autoNext && currentStep < recipe.steps.length - 1) {
         setCurrentStep(currentStep + 1);
         setRemainingTime(recipe.steps[currentStep + 1].duration);
-        if (recipe.steps[currentStep].autoTransition) {
-          setTimerActive(true);
-        }
       }
     }
 
-    return () => clearInterval(interval);
-  }, [timerActive, remainingTime, currentStep, recipe.steps, finishedSteps]);
+    return () => clearTimeout(timer);
+  }, [timerActive, remainingTime]);
 
   const toggleTimer = () => {
     setTimerActive(!timerActive);
   };
 
   const resetTimer = () => {
-    setRemainingTime(recipe.steps[currentStep].duration);
     setTimerActive(false);
+    setRemainingTime(recipe.steps[currentStep].duration);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{recipe.name}</Text>
-      {recipe.steps.map((step, index) => (
-        <Text
-          key={index}
-          style={[
-            styles.step,
-            {
-              textDecorationLine: finishedSteps.includes(index) ? 'line-through' : 'none',
-              fontWeight: index === currentStep ? 'bold' : 'normal',
-            },
-          ]}
-        >
-          Step {index + 1}: {step.description} ({step.duration} seconds)
-        </Text>
-      ))}
-      <Text style={styles.step}>{recipe.steps[currentStep].description}</Text>
-      <TouchableOpacity onPress={() => editRecipe(recipe)} style={styles.button}>
-        <Text style={styles.buttonText}>Edit</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => removeRecipe(recipe)} style={styles.button}>
-        <Text style={styles.buttonText}>Remove</Text>
-      </TouchableOpacity>
-      <Text style={styles.time}>{remainingTime}s</Text>
-      <TouchableOpacity style={styles.button} onPress={toggleTimer}>
-        <Text style={styles.buttonText}>{timerActive ? 'Pause' : 'Start'}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={resetTimer}>
-        <Text style={styles.buttonText}>Reset</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={goBack} style={styles.button}>
-        <Text style={styles.buttonText}>Go back</Text>
-      </TouchableOpacity>
+      <Text style={styles.recipeTitle}>{recipe.name}</Text>
+      <View style={styles.stepsContainer}>
+        {recipe.steps.map((step, index) => (
+          <View key={index} style={styles.step}>
+            <Text
+              style={[
+                styles.stepText,
+                index === currentStep && styles.currentStep,
+                completedSteps.includes(index) && styles.completedStep,
+              ]}
+            >
+              {index + 1}. {step.task} ({step.duration}秒)
+            </Text>
+          </View>
+        ))}
+      </View>
+      <View style={styles.timerContainer}>
+        <Text style={styles.timerText}>{remainingTime}秒</Text>
+        <TouchableOpacity style={styles.timerButton} onPress={toggleTimer}>
+          <Text style={styles.timerButtonText}>{timerActive ? '一時停止' : '開始'}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.resetButton} onPress={resetTimer}>
+          <Text style={styles.resetButtonText}>リセット</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.actionsContainer}>
+        <TouchableOpacity onPress={() => onEdit(recipe)}>
+          <Text style={styles.editButton}>レシピを編集</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => onDelete(recipe.id)}>
+          <Text style={styles.deleteButton}>レシピを削除</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onBack}>
+          <Text style={styles.backButton}>戻る</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -79,31 +85,74 @@ const Timer = ({ recipe, goBack, editRecipe, removeRecipe, cancelForm}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    padding: 10,
   },
-  title: {
+  recipeTitle: {
     fontSize: 24,
-    marginBottom: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  stepsContainer: {
+    marginBottom: 20,
   },
   step: {
-    fontSize: 20,
-    marginBottom: 8,
+    marginBottom: 10,
   },
-  time: {
-    fontSize: 48,
-    marginBottom: 24,
+
+  stepText: {
+    fontSize: 18,
   },
-  button: {
-    backgroundColor: '#007bff',
+  currentStep: {
+    fontWeight: 'bold',
+  },
+  completedStep: {
+    textDecorationLine: 'line-through',
+  },
+  timerContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  timerText: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  timerButton: {
+    backgroundColor: 'dodgerblue',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     borderRadius: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 8,
+    marginBottom: 10,
   },
-  buttonText: {
-    color: '#fff',
+  timerButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  resetButton: {
+    backgroundColor: 'gray',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 4,
+  },
+  resetButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  editButton: {
+    color: 'dodgerblue',
+    fontSize: 16,
+  },
+  deleteButton: {
+    color: 'red',
+    fontSize: 16,
+  },
+  backButton: {
+    color: 'gray',
     fontSize: 16,
   },
 });
