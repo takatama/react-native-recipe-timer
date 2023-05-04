@@ -57,7 +57,7 @@ const Timer = ({ recipe, onEdit, onDelete, onBack }) => {
                 completedSteps.includes(index) && styles.completedStep,
               ]}
             >
-              {index + 1}. {step.description} ({step.duration}秒)
+              {index + 1}. {step.description} ({step.duration}秒) {step.autoNext ? " ⬇" : ""}
             </Text>
           </View>
         ))}
