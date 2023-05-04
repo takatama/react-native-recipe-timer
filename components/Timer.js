@@ -22,21 +22,23 @@ const Timer = ({ recipe, onEdit, onDelete, onBack }) => {
       setTimerActive(false);
       setCompletedSteps([...completedSteps, currentStep]);
   
-      if (recipe.steps[currentStep].autoNext && currentStep < recipe.steps.length - 1) {
+      if (currentStep < recipe.steps.length - 1) {
         setCurrentStep(currentStep + 1);
         setRemainingTime(recipe.steps[currentStep + 1].duration);
-        setTimerActive(true);
+  
+        if (recipe.steps[currentStep].autoNext) {
+          setTimerActive(true);
+        }
       }
     }
   
     return () => clearTimeout(timer);
-  }, [timerActive, remainingTime, currentStep, recipe.steps]);
-  
+  }, [timerActive, remainingTime]);
   
   const toggleTimer = () => {
     setTimerActive(!timerActive);
   };
-
+  
   const resetTimer = () => {
     setTimerActive(false);
     setRemainingTime(recipe.steps[currentStep] ? recipe.steps[currentStep].duration : 0);
@@ -60,6 +62,14 @@ const Timer = ({ recipe, onEdit, onDelete, onBack }) => {
           </View>
         ))}
       </View>
+      <View style={styles.actionsContainer}>
+        <TouchableOpacity onPress={() => onEdit(recipe)}>
+          <Text style={styles.editButton}>レシピを編集</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => onDelete(recipe.id)}>
+          <Text style={styles.deleteButton}>レシピを削除</Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.timerContainer}>
         <Text style={styles.timerText}>{remainingTime}秒</Text>
         <TouchableOpacity style={styles.timerButton} onPress={toggleTimer}>
@@ -70,12 +80,6 @@ const Timer = ({ recipe, onEdit, onDelete, onBack }) => {
         </TouchableOpacity>
       </View>
       <View style={styles.actionsContainer}>
-        <TouchableOpacity onPress={() => onEdit(recipe)}>
-          <Text style={styles.editButton}>レシピを編集</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => onDelete(recipe.id)}>
-          <Text style={styles.deleteButton}>レシピを削除</Text>
-        </TouchableOpacity>
         <TouchableOpacity onPress={onBack}>
           <Text style={styles.backButton}>戻る</Text>
         </TouchableOpacity>
@@ -115,6 +119,7 @@ const styles = StyleSheet.create({
   timerContainer: {
     alignItems: 'center',
     marginBottom: 20,
+    marginTop: 30,
   },
   timerText: {
     fontSize: 36,
