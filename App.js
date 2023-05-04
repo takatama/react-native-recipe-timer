@@ -46,7 +46,7 @@ const App = () => {
   };
 
   const handleAddRecipe = () => {
-    setEditingRecipe({name: '', steps:[{ description: '', duration: 0, autoNext: false, alarmBeforeEnd: false }]});
+    setEditingRecipe({id: Date.now(), name: '', steps:[{ description: '', duration: 0, autoNext: false, alarmBeforeEnd: false }]});
   };
 
   const handleSaveRecipe = (recipe) => {
