@@ -5,18 +5,51 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import { Audio } from "expo-av";
 
 const Timer = ({ recipe, onEdit, onDelete, onBack }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [remainingTime, setRemainingTime] = useState(recipe.steps[currentStep] ? recipe.steps[currentStep].duration : 0);
   const [timerActive, setTimerActive] = useState(false);
   const [completedSteps, setCompletedSteps] = useState([]);
+  const [sound, setSound] = useState(null);
+  
+  const playSound = async () => {
+    // force to reload sound data
+    const { sound: newSound } = await Audio.Sound.createAsync(
+      require("./../assets/jiho.mp3")
+    );
+    setSound(newSound);
+    await newSound.playAsync();
+  };
+
+  useEffect(() => {
+    if (sound) {
+      return () => {
+        sound.unloadAsync();
+      };
+    }
+  }, [sound]);
+
+
+  const shouldPlaySound = () => {
+    return (
+      timerActive &&
+      remainingTime === 4 &&
+      recipe.steps[currentStep] &&
+      recipe.steps[currentStep].alarmBeforeEnd
+    );
+  };
 
   useEffect(() => {
     let timer;
     if (timerActive && remainingTime > 0 && currentStep < recipe.steps.length) {
       timer = setTimeout(() => {
         setRemainingTime(remainingTime - 1);
+
+        if (shouldPlaySound()) {
+          playSound();
+        }
       }, 1000);
     } else if (timerActive && remainingTime === 0 && currentStep < recipe.steps.length) {
       setTimerActive(false);
@@ -25,7 +58,7 @@ const Timer = ({ recipe, onEdit, onDelete, onBack }) => {
       if (currentStep < recipe.steps.length - 1) {
         setCurrentStep(currentStep + 1);
         setRemainingTime(recipe.steps[currentStep + 1].duration);
-  
+
         if (recipe.steps[currentStep].autoNext) {
           setTimerActive(true);
         }
@@ -42,6 +75,7 @@ const Timer = ({ recipe, onEdit, onDelete, onBack }) => {
   const resetTimer = () => {
     setTimerActive(false);
     setRemainingTime(recipe.steps[currentStep] ? recipe.steps[currentStep].duration : 0);
+    setSound(null);
   };
 
   return (
@@ -57,7 +91,7 @@ const Timer = ({ recipe, onEdit, onDelete, onBack }) => {
                 completedSteps.includes(index) && styles.completedStep,
               ]}
             >
-              {index + 1}. {step.description} ({step.duration}秒) {step.autoNext ? " ⬇" : ""}
+              {index + 1}. {step.description} ({step.duration}秒) {step.autoNext ? " ⬇" : ""} {step.alarmBeforeEnd ? " 🔔" : ""}
             </Text>
           </View>
         ))}

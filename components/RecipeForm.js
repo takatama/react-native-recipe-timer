@@ -76,7 +76,7 @@ const RecipeForm = ({ onSave, onCancel, initialRecipe }) => {
               <Switch
                 value={step.alarmBeforeEnd}
                 onValueChange={value => updateStep(index, 'alarmBeforeEnd', value)}
-                disabled={step.duration < 3}
+                disabled={step.duration < 4}
               />
               <Text style={styles.switchLabel}>最後に時報？</Text>
             </View>

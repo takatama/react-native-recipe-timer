@@ -46,27 +46,32 @@ const App = () => {
   };
 
   const handleAddRecipe = () => {
-    setEditingRecipe({id: Date.now(), name: '', steps:[{ description: '', duration: 0, autoNext: false, alarmBeforeEnd: false }]});
+    setEditingRecipe({name: '', steps:[{ description: '', duration: 0, autoNext: false, alarmBeforeEnd: false }]});
   };
 
   const handleSaveRecipe = (recipe) => {
+    let updatedSelectedRecipe = selectedRecipe;
+    
     if (editingRecipe.id) {
       // Update existing recipe
-      const index = recipes.findIndex((r) => r.id === editingRecipe.id);
-      const updatedRecipes = [
-        ...recipes.slice(0, index),
-        recipe,
-        ...recipes.slice(index + 1),
-      ];
+      const updatedRecipes = recipes.map((r) => {
+        if (r.id === editingRecipe.id) {
+          updatedSelectedRecipe = recipe;
+          return recipe;
+        }
+        return r;
+      });
       saveRecipes(updatedRecipes);
     } else {
       // Add new recipe
       const newRecipe = { ...recipe, id: Date.now() };
       saveRecipes([...recipes, newRecipe]);
+      updatedSelectedRecipe = newRecipe;
     }
     setEditingRecipe(null);
+    setSelectedRecipe(updatedSelectedRecipe);
   };
-
+  
   const handleCancelEdit = () => {
     setEditingRecipe(null);
   };
