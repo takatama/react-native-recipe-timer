@@ -14,23 +14,28 @@ const Timer = ({ recipe, onEdit, onDelete, onBack }) => {
   const [completedSteps, setCompletedSteps] = useState([]);
   const [sound, setSound] = useState(null);
   
-  const playSound = async () => {
-    // force to reload sound data
-    const { sound: newSound } = await Audio.Sound.createAsync(
-      require("./../assets/jiho.mp3")
-    );
-    setSound(newSound);
-    await newSound.playAsync();
-  };
-
   useEffect(() => {
-    if (sound) {
-      return () => {
-        sound.unloadAsync();
-      };
-    }
-  }, [sound]);
+    const loadSound = async () => {
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        require("./../assets/jiho.mp3")
+      );
+      setSound(newSound);
+    };
+    loadSound();
 
+    return () => {
+      if (sound) {
+        sound.unloadAsync();
+      }
+    };
+  }, []);
+
+  const playSound = async () => {
+    if (sound) {
+      await sound.setPositionAsync(0);
+      await sound.playAsync();
+    }
+  };
 
   const shouldPlaySound = () => {
     return (
