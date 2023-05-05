@@ -1,45 +1,45 @@
-# レシピタイマー
+# Recipe Timer
 
-レシピタイマーは、レシピに従って作業をするためのカウントダウンタイマーです。レシピのステップごとに「やること」と「必要な時間」を定義します。レシピを選択すると、ステップごとのカウントダウンが始まります。
+Recipe Timer is a countdown timer for working according to recipes. Each step in the recipe defines a "task" and the "time required" to complete it. When you select a recipe, the countdown for each step begins.
 
-レシピは次の設定も可能です：
-- 自動的に次のステップに移行するか？（Noの場合は、次のステップに移行した後、タイマーの開始ボタンを押すまでそのステップが開始しない）
-- ステップの最後に時報を鳴らすか？（Yesの場合は、3秒前から時報が鳴る）
+The following recipe settings are also available:
+- Automatically move to the next step? (If set to No, the timer will not start the next step until you press the start button)
+- Sound a time signal at the end of the step? (If set to Yes, a time signal will sound 3 seconds before the end)
 
-## 操作方法
+## How to Use
 
-このアプリはトップ画面、レシピタイマー画面、レシピ編集画面の3つの画面で構成されます。
+This app consists of three screens: the top screen, the recipe timer screen, and the recipe editing screen.
 
-アプリを起動すると、トップ画面にレシピ一覧と「レシピを追加」ボタンが表示されます。
-- レシピ一覧からレシピをタップすると、そのレシピのレシピタイマー画面に遷移します。
-- レシピを追加ボタンを押すと、レシピ編集画面に遷移します。
+When you launch the app, the top screen displays a list of recipes and an "Add Recipe" button.
+- Tapping a recipe from the list will take you to the recipe timer screen for that recipe.
+- Pressing the Add Recipe button will take you to the recipe editing screen.
 
-レシピ編集画面は、レシピ名、ステップごとの入力項目、「保存」ボタン、「キャンセル」ボタンで構成されます。
-- レシピ名はレシピの名前を入力します。
-- ステップごとの入力項目は、「やること」「必要な時間」「自動で次へ？」「最後に時報？」（必要な時間が4秒以上の場合のみ）の4つです。また、「このステップを削除」ボタンと「新しいステップを追加」ボタンがあります。
-  - このステップを削除ボタンを押すと、このレシピからこのステップを削除します。
-  - 新しいステップを追加ボタンを押すと、このレシピに新しいステップを追加し、入力項目を入力できるようになります。
-- 「保存」ボタンを押すと、編集中のレシピを保存します。
-- 「キャンセル」ボタンを押すと、編集中のレシピを保存せず、前の画面（トップ画面、もしくはタイマー画面）に遷移します。
+The recipe editing screen consists of fields for the recipe name, input fields for each step, a "Save" button, and a "Cancel" button.
+- The recipe name field is where you enter the name of the recipe.
+- The input fields for each step include "Task", "Time Required", "Auto Next?", and "Time Signal at the End?" (only if the time required is 4 seconds or more). There are also "Delete This Step" and "Add New Step" buttons.
+  - Pressing the Delete This Step button will remove the step from the recipe.
+  - Pressing the Add New Step button will add a new step to the recipe and allow you to enter information for it.
+- Pressing the Save button will save the edited recipe.
+- Pressing the Cancel button will not save the edited recipe and return you to the previous screen (either the top screen or the timer screen).
 
-レシピタイマー画面は、レシピ画面、タイマー画面、「戻る」ボタンで構成されます。
-- レシピ画面は、レシピのステップ、「レシピを編集」ボタン、「レシピを削除」ボタンから構成されます。
-  - レシピは、複数のステップで構成されます。それぞれのステップでやること、必要なじかんを表示します。現在のステップは太字で、終了したステップが取り消し線で表示されます。
-  - 「レシピを編集」ボタンを押すと、レシピ編集画面に遷移します。
-  - 「レシピを削除」ボタンを押すと、そのレシピを削除して、トップ画面に遷移します。
-- タイマー画面は、現在のステップの残り時間、「開始（もしくは、一時停止）」ボタン、「リセット」ボタンで構成されます。
-  - 開始ボタンを押すと、そのステップのカウントダウンを開始し、開始ボタンから一時停止ボタンにテキストが変わります。カウントダウンが終了し0になると、そのステップは終了し、次のステップへ移行します。残り時間の表示は、次のステップの時間に設定され、一時停止ボタンから開始ボタンにテキストが変わります。ただし、終了したステップが「自動で次」になっている場合、次のステップのカウントダウンが自動的に始まります。
-  - リセットボタンを押すと、カウントダウンがリセットされます。開始ボタンが一時停止ボタンに変わっていた場合、開始ボタンにテキストが変わります。
-- 戻るボタンを押すと、トップ画面に遷移します。
+The recipe timer screen consists of the recipe view, the timer view, and a "Back" button.
+- The recipe view displays the steps of the recipe, an "Edit Recipe" button, and a "Delete Recipe" button.
+  - The recipe is composed of multiple steps. Each step displays the task and the required time. The current step is shown in bold, and completed steps are shown with a strikethrough.
+  - Pressing the Edit Recipe button will take you to the recipe editing screen.
+  - Pressing the Delete Recipe button will delete the recipe and return you to the top screen.
+- The timer view displays the remaining time for the current step, a "Start (or Pause)" button, and a "Reset" button.
+  - Pressing the Start button begins the countdown for the current step and changes the text from Start to Pause. When the countdown reaches zero, the step is completed, and the app moves on to the next step. The remaining time display resets to the time for the next step, and the text changes from Pause to Start. However, if the completed step is set to "Auto Next?", the countdown for the next step will start automatically.
+  - Pressing the Reset button will reset the countdown. If the Start button has changed to Pause, the text will change back to Start.
+- Pressing the Back button will take you to the top screen.
 
-## 仕様
+## Specifications
 
-- レシピはアプリ内に永続化されます。
+- Recipes are persisted within the app.
 
-## 制限
+## Limitations
 
-- アプリがバックグラウンドに移動した場合、タイマーは停止してカウントダウンは継続しません。アプリがバックグラウンドにある間にタイマーが終了する事はないので、通知は受け取りません。
-- タイマー画面において、カウントダウンが進行中の場合、利用者は他のステップに移動できません。タイマーを停止する必要があります。
-- レシピのステップの順序は、ドラッグアンドドロップでの変更はできません。
-- このアプリはスマートフォン専用のアプリです。
+- If the app is moved to the background, the timer will stop, and the countdown will not continue. You will not receive any notifications if the timer ends while the app is in the background.
+- On the timer screen, users cannot move to another step while the countdown is in progress. The timer must be stopped first.
+- The order of the steps in a recipe cannot be changed using drag-and-drop.
+- This app is designed exclusively for smartphones.
 
