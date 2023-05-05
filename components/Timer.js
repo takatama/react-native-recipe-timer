@@ -72,9 +72,21 @@ const Timer = ({ recipe, onEdit, onDelete, onBack }) => {
     setTimerActive(!timerActive);
   };
   
-  const resetTimer = () => {
+  const hasIncompleteSteps = () => {
+    return completedSteps.length < recipe.steps.length;
+  };
+  
+  const resetCurrentStep = () => {
     setTimerActive(false);
     setRemainingTime(recipe.steps[currentStep] ? recipe.steps[currentStep].duration : 0);
+    setSound(null);
+  };
+
+  const resetRecipe = () => {
+    setTimerActive(false);
+    setCurrentStep(0);
+    setRemainingTime(recipe.steps[0] ? recipe.steps[0].duration : 0);
+    setCompletedSteps([]);
     setSound(null);
   };
 
@@ -106,14 +118,21 @@ const Timer = ({ recipe, onEdit, onDelete, onBack }) => {
       </View>
       <View style={styles.timerContainer}>
         <Text style={styles.timerText}>{remainingTime}秒</Text>
-        <TouchableOpacity style={styles.timerButton} onPress={toggleTimer}>
-          <Text style={styles.timerButtonText}>{timerActive ? '一時停止' : '開始'}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.resetButton} onPress={resetTimer}>
-          <Text style={styles.resetButtonText}>リセット</Text>
-        </TouchableOpacity>
-      </View>
+        {hasIncompleteSteps() && (
+          <>
+            <TouchableOpacity style={styles.timerButton} onPress={toggleTimer}>
+              <Text style={styles.timerButtonText}>{timerActive ? '一時停止' : '開始'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={resetCurrentStep}>
+              <Text style={styles.resetButton}>リセット</Text>
+            </TouchableOpacity>
+          </>
+        )}
+        </View>
       <View style={styles.actionsContainer}>
+        <TouchableOpacity onPress={resetRecipe}>
+          <Text style={styles.resetButton}>全てリセット</Text>
+        </TouchableOpacity>
         <TouchableOpacity onPress={onBack}>
           <Text style={styles.backButton}>戻る</Text>
         </TouchableOpacity>
@@ -171,16 +190,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
   },
-  resetButton: {
-    backgroundColor: 'gray',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 4,
-  },
-  resetButtonText: {
-    color: 'white',
-    fontSize: 16,
-  },
   actionsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -192,6 +201,11 @@ const styles = StyleSheet.create({
   deleteButton: {
     color: 'red',
     fontSize: 16,
+  },
+  resetButton: {
+    color: 'gray',
+    fontSize: 16,
+    marginBottom: 10,
   },
   backButton: {
     color: 'gray',
