@@ -15,6 +15,7 @@ const RecipeForm = ({ onSave, onCancel, initialRecipe }) => {
 
   const saveRecipe = () => {
     onSave({
+      id: initialRecipe ? initialRecipe.id : null,
       name: recipeName,
       steps: steps.filter(step => step.description.trim() !== ''),
     });
