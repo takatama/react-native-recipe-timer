@@ -72,11 +72,11 @@ const Timer = ({ recipe, onEdit, onDelete, onBack }) => {
     setTimerActive(!timerActive);
   };
   
-  const hasIncompleteTasks = () => {
+  const hasIncompleteSteps = () => {
     return completedSteps.length < recipe.steps.length;
   };
   
-  const resetCurrentTask = () => {
+  const resetCurrentStep = () => {
     setTimerActive(false);
     setRemainingTime(recipe.steps[currentStep] ? recipe.steps[currentStep].duration : 0);
     setSound(null);
@@ -118,12 +118,12 @@ const Timer = ({ recipe, onEdit, onDelete, onBack }) => {
       </View>
       <View style={styles.timerContainer}>
         <Text style={styles.timerText}>{remainingTime}秒</Text>
-        {hasIncompleteTasks() && (
+        {hasIncompleteSteps() && (
           <>
             <TouchableOpacity style={styles.timerButton} onPress={toggleTimer}>
               <Text style={styles.timerButtonText}>{timerActive ? '一時停止' : '開始'}</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={resetCurrentTask}>
+            <TouchableOpacity onPress={resetCurrentStep}>
               <Text style={styles.resetButton}>リセット</Text>
             </TouchableOpacity>
           </>
@@ -131,7 +131,7 @@ const Timer = ({ recipe, onEdit, onDelete, onBack }) => {
         </View>
       <View style={styles.actionsContainer}>
         <TouchableOpacity onPress={resetRecipe}>
-          <Text style={styles.resetButton}>レシピをリセット</Text>
+          <Text style={styles.resetButton}>全てリセット</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={onBack}>
           <Text style={styles.backButton}>戻る</Text>

@@ -57,7 +57,7 @@ const RecipeForm = ({ onSave, onCancel, initialRecipe }) => {
               onChangeText={value => updateStep(index, 'description', value)}
             />
             <View style={styles.durationContainer}>
-              <Text style={styles.label}>必要な時間（秒）</Text>
+              <Text style={styles.label}>所要時間（秒）</Text>
               <TextInput
                 style={styles.textInput}
                 keyboardType="number-pad"

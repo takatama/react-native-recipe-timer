@@ -22,7 +22,7 @@ The recipe editing screen consists of fields for the recipe name, input fields f
 - Pressing the Save button will save the edited recipe.
 - Pressing the Cancel button will not save the edited recipe and return you to the previous screen (either the top screen or the timer screen).
 
-The recipe timer screen consists of the recipe view, the timer view, and a "Back" button.
+The recipe timer screen consists of the recipe view, the timer view, "Reset All" button, and a "Back" button.
 - The recipe view displays the steps of the recipe, an "Edit Recipe" button, and a "Delete Recipe" button.
   - The recipe is composed of multiple steps. Each step displays the task and the required time. The current step is shown in bold, and completed steps are shown with a strikethrough.
   - Pressing the Edit Recipe button will take you to the recipe editing screen.
@@ -30,6 +30,7 @@ The recipe timer screen consists of the recipe view, the timer view, and a "Back
 - The timer view displays the remaining time for the current step, a "Start (or Pause)" button, and a "Reset" button.
   - Pressing the Start button begins the countdown for the current step and changes the text from Start to Pause. When the countdown reaches zero, the step is completed, and the app moves on to the next step. The remaining time display resets to the time for the next step, and the text changes from Pause to Start. However, if the completed step is set to "Auto Next?", the countdown for the next step will start automatically.
   - Pressing the Reset button will reset the countdown. If the Start button has changed to Pause, the text will change back to Start.
+- Pressing the Reset All button will reset all completed steps to their starting state.
 - Pressing the Back button will take you to the top screen.
 
 ## Specifications
