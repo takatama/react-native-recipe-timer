@@ -1,180 +1,177 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  Switch,
+} from 'react-native';
 
-const RecipeForm = ({ recipes, setRecipes, addRecipe, cancelForm, editingRecipe, setEditingRecipe }) => {
-  const [recipeName, setRecipeName] = useState(editingRecipe ? editingRecipe.name : '');
-  const [steps, setSteps] = useState(editingRecipe ? editingRecipe.steps : [{ description: '', duration: 0, autoTransition: false }]);
+const RecipeForm = ({ onSave, onCancel, initialRecipe }) => {
+  const [recipeName, setRecipeName] = useState(initialRecipe ? initialRecipe.name : '');
+  const [steps, setSteps] = useState(initialRecipe ? initialRecipe.steps : [{ description: '', duration: 0, autoNext: false, alarmBeforeEnd: false }]);
+
+  const saveRecipe = () => {
+    onSave({
+      id: initialRecipe ? initialRecipe.id : null,
+      name: recipeName,
+      steps: steps.filter(step => step.description.trim() !== ''),
+    });
+  };
 
   const updateStep = (index, key, value) => {
-    setSteps((prevSteps) =>
-      prevSteps.map((step, idx) => (idx === index ? { ...step, [key]: value } : step))
-    );
+    const newSteps = [...steps];
+    newSteps[index][key] = value;
+    setSteps(newSteps);
+  };
+
+  const removeStep = index => {
+    const newSteps = [...steps];
+    newSteps.splice(index, 1);
+    setSteps(newSteps);
   };
 
   const addStep = () => {
-    setSteps((prevSteps) => [...prevSteps, { description: '', duration: 0, autoTransition: false }]);
-  };
-
-  const removeStep = (index) => {
-    setSteps((prevSteps) => prevSteps.filter((_, idx) => idx !== index));
-  };
-
-  const resetForm = () => {
-    setRecipeName('');
-    setSteps([{ description: '', duration: 0, autoTransition: false }]);
-  };
-
-  const submitForm = () => {
-    if (recipeName === '') {
-      alert('Please enter a recipe name.');
-      return;
-    }
-
-    if (editingRecipe) {
-      const updatedRecipes = recipes.map((recipe) =>
-        recipe.id === editingRecipe.id ? { id: editingRecipe.id, name: recipeName, steps } : recipe
-      );
-      setRecipes(updatedRecipes);
-      setEditingRecipe(null);
-    } else {
-      const newRecipe = { name: recipeName, steps };
-
-      addRecipe(newRecipe);
-    }
-    resetForm();
-  };
-
-  const cancelFormHandler = () => {
-    cancelForm();
+    setSteps([...steps, { description: '', duration: 0, autoNext: false, alarmBeforeEnd: false }]);
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={{
-        flexGrow: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-      }}
-    >
-      <Text style={styles.label}>Recipe Name:</Text>
-      <TextInput
-        style={styles.textInput}
-        value={recipeName}
-        onChangeText={setRecipeName}
-        placeholder="Enter recipe name"
-      />
-
-      {steps.map((step, index) => (
-        <View key={index} style={styles.stepContainer}>
-          <Text style={styles.label}>Step {index + 1}:</Text>
-          <TextInput
-            style={styles.textInput}
-            value={step.description}
-            onChangeText={(text) => updateStep(index, 'description', text)}
-            placeholder="Enter step description"
-          />
-          <Text style={styles.label}>Duration (seconds):</Text>
-          <TextInput
-            style={styles.textInput}
-            keyboardType="number-pad"
-            value={step.duration.toString()}
-            onChangeText={(text) => updateStep(index, 'duration', parseInt(text) || 0)}
-            placeholder="Enter duration in seconds"
-          />
-          <Text style={styles.label}>Auto-transition:</Text>
-          <TouchableOpacity
-            style={styles.checkbox}
-            onPress={() => updateStep(index, 'autoTransition', !step.autoTransition)}
-          >
-            <Text style={styles.checkboxText}>{step.autoTransition ? '✓' : ''}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => removeStep(index)} style={styles.removeButton}>
-            <Text style={styles.removeButtonText}>Remove Step</Text>
-          </TouchableOpacity>
-        </View>
-      ))}
-
-      <TouchableOpacity onPress={addStep} style={styles.addButton}>
-        <Text style={styles.addButtonText}>Add Step</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={submitForm} style={styles.addButton}>
-        <Text style={styles.addButtonText}>Add Recipe</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={cancelFormHandler} style={styles.cancelButton}>
-        <Text style={styles.cancelButtonText}>Cancel</Text>
-      </TouchableOpacity>
+    <ScrollView>
+      <View style={styles.container}>
+        <Text style={styles.label}>レシピ名</Text>
+        <TextInput
+          style={styles.textInput}
+          placeholder="レシピ名を入力"
+          value={recipeName}
+          onChangeText={setRecipeName}
+        />
+        {steps.map((step, index) => (
+          <View key={index} style={styles.stepContainer}>
+            <Text style={styles.label}>{`ステップ ${index + 1}`}</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder="やること"
+              value={step.description}
+              onChangeText={value => updateStep(index, 'description', value)}
+            />
+            <View style={styles.durationContainer}>
+              <Text style={styles.label}>必要な時間（秒）</Text>
+              <TextInput
+                style={styles.textInput}
+                keyboardType="number-pad"
+                value={step.duration.toString()}
+                onChangeText={value => updateStep(index, 'duration', parseInt(value, 10) || 0)}
+                placeholder="0"
+              />
+            </View>
+            <View style={styles.switchContainer}>
+              <Switch
+                value={step.autoNext}
+                onValueChange={value => updateStep(index, 'autoNext', value)}
+              />
+              <Text style={styles.switchLabel}>自動で次へ？</Text>
+            </View>
+            <View style={styles.switchContainer}>
+              <Switch
+                value={step.alarmBeforeEnd}
+                onValueChange={value => updateStep(index, 'alarmBeforeEnd', value)}
+                disabled={step.duration < 4}
+              />
+              <Text style={styles.switchLabel}>最後に時報？</Text>
+            </View>
+            <TouchableOpacity onPress={() => removeStep(index)}>
+              <Text style={styles.removeStepButton}>このステップを削除</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+        <TouchableOpacity onPress={addStep} style={styles.addButton}>
+          <Text style={styles.addButtonText}>新しいステップを追加</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={saveRecipe} style={styles.saveButton}>
+          <Text style={styles.saveButtonText}>保存</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onCancel} style={styles.cancelButton}>
+          <Text style={styles.cancelButtonText}>キャンセル</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+    marginTop: 36,
+  },
   label: {
-    fontSize: 18,
-    marginTop: 16,
+    fontSize: 16,
+    fontWeight: 'bold',
     marginBottom: 4,
   },
   textInput: {
-    borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 8,
-    width: '80%',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    fontSize: 16,
-  },
-  checkbox: {
     borderWidth: 1,
-    borderColor: '#ccc',
     borderRadius: 4,
-    width: 24,
-    height: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
-  },
-  checkboxText: {
-    fontSize: 18,
+    fontSize: 16,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginBottom: 16,
   },
   stepContainer: {
-    marginTop: 16,
-    width: '100%',
+    marginBottom: 16,
+  },
+  durationContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 8,
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  switchLabel: {
+    marginLeft: 8,
+    fontSize: 16,
+  },
+  removeStepButton: {
+    color: 'red',
+    fontSize: 16,
+    textDecorationLine: 'underline',
   },
   addButton: {
     backgroundColor: '#4caf50',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    borderRadius: 4,
+    padding: 8,
     marginBottom: 16,
   },
   addButtonText: {
-    color: '#fff',
-    fontSize: 18,
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
   },
-  removeButton: {
-    backgroundColor: '#f44336',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginBottom: 16,
+  saveButton: {
+    backgroundColor: '#2196f3',
+    borderRadius: 4,
+    padding: 8,
+    marginBottom: 8,
   },
-  removeButtonText: {
-    color: '#fff',
-    fontSize: 18,
+  saveButtonText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
   },
   cancelButton: {
-    backgroundColor: '#f44336',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginBottom: 16,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 4,
+    padding: 8,
   },
   cancelButtonText: {
-    color: '#fff',
-    fontSize: 18,
+    fontSize: 16,
+    textAlign: 'center',
   },
 });
 
