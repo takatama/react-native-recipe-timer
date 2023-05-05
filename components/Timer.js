@@ -84,7 +84,6 @@ const Timer = ({ recipe, onEdit, onDelete, onBack }) => {
   const resetCurrentStep = () => {
     setTimerActive(false);
     setRemainingTime(recipe.steps[currentStep] ? recipe.steps[currentStep].duration : 0);
-    setSound(null);
   };
 
   const resetRecipe = () => {
@@ -92,7 +91,6 @@ const Timer = ({ recipe, onEdit, onDelete, onBack }) => {
     setCurrentStep(0);
     setRemainingTime(recipe.steps[0] ? recipe.steps[0].duration : 0);
     setCompletedSteps([]);
-    setSound(null);
   };
 
   return (
