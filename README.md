@@ -1,5 +1,11 @@
 # Recipe Timer
 
+## Kitchenflow redesign
+
+The new responsive cooking companion is implemented in [web/](web/README.md). It combines multiple recipes into a resource-aware cooking plan, keeps independent recoverable timers, supports optional voice control and AI-assisted text/URL/photo import, and requires human confirmation of completed work. The original Expo implementation below is preserved.
+
+Read the [product analysis and design decisions (Japanese)](docs/product-redesign.ja.md). To run the new product, use `npm install` and `npm run dev` inside `web/`, then open `http://127.0.0.1:4317`.
+
 Recipe Timer is a countdown timer for working according to recipes. Each step in the recipe defines a "task" and the "time required" to complete it. When you select a recipe, the countdown for each step begins.
 
 The following recipe settings are also available:
